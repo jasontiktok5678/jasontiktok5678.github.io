@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinite TikTok & X Viewer</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        iframe { width: 60%; height: 500px; border: none; }
+        img { width: 60%; height: 500px; object-fit: cover; display: none; }
+        textarea { width: 80%; height: 100px; margin: 10px; }
+        button { padding: 10px 20px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>Infinite TikTok & X Viewer</h1>
+    <textarea id="links" placeholder="Paste TikTok links and X image links here (one per line)"></textarea>
+    <br>
+    <button onclick="startPlayback()">Start</button>
+    <br><br>
+    <iframe id="viewer" allowfullscreen></iframe>
+    <img id="xImage" />
+    
+    <script>
+        let mediaLinks = [];
+        let index = 0;
+        let isImage = false;
+        let imgTimeout;
+
+        function startPlayback() {
+            mediaLinks = document.getElementById("links").value.split("\n").map(link => link.trim()).filter(link => link);
+            index = 0;
+            playNext();
+        }
+
+        function playNext() {
+            if (mediaLinks.length === 0) return;
+            let viewer = document.getElementById("viewer");
+            let xImage = document.getElementById("xImage");
+            let link = mediaLinks[index];
+            isImage = link.includes("x.com") || link.includes("twitter.com");
+            
+            if (isImage) {
+                viewer.style.display = "none";
+                xImage.style.display = "block";
+                xImage.src = link;
+                imgTimeout = setTimeout(() => {
+                    index = (index + 1) % mediaLinks.length;
+                    playNext();
+                }, 60000);
+            } else {
+                clearTimeout(imgTimeout);
+                viewer.style.display = "block";
+                xImage.style.display = "none";
+                viewer.src = link;
+                viewer.onload = () => {
+                    setTimeout(() => {
+                        index = (index + 1) % mediaLinks.length;
+                        playNext();
+                    }, 15000); // Adjust based on video length
+                };
+            }
+        }
+    </script>
+</body>
+</html>
